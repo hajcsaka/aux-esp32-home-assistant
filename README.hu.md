@@ -1,57 +1,92 @@
 # AUX ESP32 → Home Assistant
 
-AUX Console Pro klíma helyi vezérlése ESP32 és ESPHome segítségével, a [GrKoR AUX AC komponensére](https://github.com/GrKoR/esphome_aux_ac_component) építve.
+Local control of an AUX air conditioner using ESP32, ESPHome and the [GrKoR AUX AC component](https://github.com/GrKoR/esphome_aux_ac_component).
 
-Telepítés és eredeti útmutatók: **Hajcsák Attila, Magyarország**.
+Installation and documentation by **Attila Hajcsák, Hungary**. This repository documents a specific installation; it is not a replacement for the upstream component.
 
-## Útmutatók és fájlok
+[Magyar leírás](README.hu.md)
 
-- [Magyar PDF](AUX_ESP32_Integracios_utmutato_HU.pdf)
-- [Angol PDF](AUX_ESP32_Integration_Guide_EN.pdf)
-- [Bekötési táblázat](wiring.md)
-- [Másolható ESPHome-példa](aux-ac.example.yaml)
-- [Titkos adatok sablonja](secrets.example.yaml)
+## Installation guides
 
-![Bekötés](wiring.svg)
+- [English guide (PDF)](AUX_ESP32_Integration_Guide_EN.pdf)
+- [Magyar útmutató (PDF)](AUX_ESP32_Integracios_utmutato_HU.pdf)
 
-## Dokumentált hardver
+Both guides include the wiring diagram, assembly photographs, configuration example and commissioning notes.
 
-- AUX Console Pro AMCO-H12/4R3DA-2 beltéri egység, 2022.
-- Eredeti modul: AUXWIFI0001-A1 / BroadLink BL3353-P.
-- ESP-WROOM-32 fejlesztőpanel, CH340 USB-C.
-- Négycsatornás BSS138 szintillesztő.
-- Eredeti, ötérintkezős csatlakozó, négy bekötött vezetékkel.
+## Documented hardware
 
-A telepítő beszámolója szerint működik a helyi, kétirányú vezérlés, a hőmérséklet, az üzemmód és a ventilátorsebesség állítása a gyártói felhő nélkül. Más modellek kompatibilitása nincs igazolva.
+| Item | Model |
+| --- | --- |
+| Indoor unit | AUX Console Pro AMCO-H12/4R3DA-2 (2022) |
+| Original Wi-Fi module | AUXWIFI0001-A1 / BroadLink BL3353-P |
+| Controller | ESP-WROOM-32 development board, CH340 USB-C |
+| Level converter | Four-channel BSS138 bidirectional module |
+| Connection | Original five-pin connector, four populated wires |
 
-## A konfiguráció használata
+The installer reports local control, bidirectional UART communication, temperature, mode and fan-speed adjustment without the original Wi-Fi module or manufacturer cloud.
 
-**A YAML a PDF-ből kiemelt, rekonstruált példa. Nem a működő konfiguráció hitelesített exportja, és a csomag készítésekor nem történt fordítás vagy hardveres teszt.**
+## Configuration status
 
-1. Másold az `aux-ac.example.yaml` tartalmát a helyi ESPHome-konfigurációdba.
-2. A `secrets.example.yaml` fájlt másold `secrets.yaml` névre, és helyben töltsd ki az adatokat. Az API-kulcs helyére érvényes ESPHome titkosítási kulcs kell.
-3. Ellenőrizd a pontos panelt, a lábkiosztást és a konfigurációt az általad használt ESPHome-verzióval.
-4. Csak ellenőrzés után fordíts és telepíts.
+**This setup runs successfully on three AUX Console Pro AMCO-H12/4R3DA-2 units in my home. The standalone YAML example is based on my working bedroom configuration, with credentials replaced by ESPHome secret references. The PDFs contain an earlier configuration example; use [aux-ac.example.yaml](aux-ac.example.yaml) for the current configuration.** Compare it with your hardware and validate it with your ESPHome version before flashing. Tested ESPHome/Home Assistant versions and an upstream commit have not yet been recorded. The example references the upstream `master` branch, which can change.
 
-A tényleges ESPHome- és Home Assistant-verzió, illetve a tesztelt komponens-commit még nincs rögzítve. A példa a változó `master` ágra hivatkozik. A valódi `secrets.yaml` fájlt soha ne töltsd fel; a mellékelt `.gitignore` a Git használatakor segít kizárni azt, de kézi böngészős feltöltésnél magadnak kell kihagynod.
+Credentials are represented by `!secret` references. Keep real Wi-Fi passwords and API keys in a local `secrets.yaml`; never commit them.
 
-## Biztonság
+Compatibility is documented only for the hardware above. Connector pinout, wire colours, voltage and available supply current must be checked on each unit.
 
-Szerelés előtt áramtalanítsd a klímát. Az áramkör nem feltétlenül galvanikusan leválasztott: klímáról táplált ESP32-re ne csatlakoztass USB-t. A leírt bekötés 5 V-os VIN/HV és 3,3 V-os LV tápágat használ; 12 V nem adható rájuk, a HV és LV tápágakat tilos közvetlenül összekötni. Ellenőrizni kell a táp terhelhetőségét, a feszültséget és a lábkiosztást minden készüléken.
+## Electrical safety
 
-Az opcionális VIN-kapcsoló nem biztonsági leválasztó: az adatvezetékeken visszatáplálás lehetséges. A teljes PDF-et olvasd el a szerelés előtt.
+Disconnect the air conditioner from mains before wiring. The circuit may not be isolated from mains: do not connect USB while the ESP32 is powered by the air conditioner. The documented arrangement uses 5 V at VIN/HV and 3.3 V at LV; do not apply 12 V or join the HV and LV supply rails. All grounds are common in this arrangement. See the full guide before assembly.
 
-## Szerelési fotók
+The optional VIN switch may not fully power down the ESP32 because data lines can backfeed power. It is not an isolation or safety switch.
 
-A képek az eredeti magyar útmutatóból származnak. A számozás nem szerelési sorrend. Elsődleges referencia a lábfelirat és a bekötési táblázat.
+## Magyar összefoglaló
 
-![1. nézet](assembly-1.jpg)
-![2. nézet](assembly-2.jpg)
-![3. nézet](assembly-3.jpg)
-![4. nézet](assembly-4.jpg)
+A projekt egy AUX Console Pro klíma helyi Home Assistant-vezérlésének megvalósítását mutatja be ESP32 és ESPHome segítségével. A magyar PDF tartalmazza a bekötést, a szerelési fotókat és az üzembe helyezés leírását.
 
-## Szerzők és felhasználás
+**A megoldás három azonos AUX Console Pro AMCO-H12/4R3DA-2 klímámon működik.** A külön YAML-fájl a működő hálószobai konfigurációmon alapul, a titkos adatokat `!secret` hivatkozások helyettesítik. A PDF-ek korábbi példát tartalmaznak; az aktuális konfiguráció az [aux-ac.example.yaml](aux-ac.example.yaml) fájlban található. A leírt bekötés nem tekinthető minden AUX-modellre érvényesnek. A biztonsági előírásokat a teljes útmutatóban olvasd el.
 
-A hardveres megvalósítás és az eredeti dokumentáció Hajcsák Attila munkája. Az AUX ESPHome-komponens GrKoR projektje, saját licencével; a komponens forráskódját ez a repó nem tartalmazza.
+## Credits
 
-Az útmutatókhoz és fotókhoz a szerző még nem választott külön felhasználási licencet. A nyilvános elérhetőség önmagában nem jelent nyílt forrású licencet.
+- Hardware installation and guides: Attila Hajcsák.
+- AUX ESPHome component: [GrKoR/esphome_aux_ac_component](https://github.com/GrKoR/esphome_aux_ac_component), distributed separately under its own license.
+
+When reporting compatibility, include the exact indoor-unit model, controller board, ESPHome version and upstream component revision. Remove credentials and personal network details from any logs you share.
+
+## Files you can use directly
+
+- [Wiring diagram](wiring.svg) / [wiring table](wiring.md)
+- [ESPHome example](aux-ac.example.yaml) — based on the owner’s working bedroom configuration, with credentials removed
+- [Secrets template](secrets.example.yaml) — placeholders only
+
+Copy `aux-ac.example.yaml` to your local ESPHome configuration, and copy `secrets.example.yaml` to `secrets.yaml`. Fill in your own credentials and a valid ESPHome API encryption key. Validate the configuration with your installed ESPHome release before flashing. No firmware binary is supplied.
+
+![Wiring diagram](wiring.svg)
+
+## Assembly photographs
+
+Extracted from the Hungarian guide. File numbering is for reference and does not indicate assembly order. Pin labels and the wiring table take precedence over wire colours.
+
+![Assembly view 1](assembly-1.jpg)
+![Assembly view 2](assembly-2.jpg)
+![Assembly view 3](assembly-3.jpg)
+![Assembly view 4](assembly-4.jpg)
+
+## Reuse and licensing
+
+An explicit license for the original guides and photographs has not yet been selected by the author. Public availability alone is not an open-source license. The upstream component retains its own license; its source code is not included here.
+
+## OTA compatibility
+
+The bare `ota: encryption:` block is intentional: OTA inherits the API encryption key. Use a compatible ESPHome release; encrypted OTA is available from ESPHome 2026.9.0. For existing older firmware, follow the [official OTA migration instructions](https://esphome.io/components/ota/esphome/#enabling-encryption-on-an-existing-device). This sanitized example has not been independently compiled during publication.
+
+## Questions
+
+Open an [issue](https://github.com/hajcsaka/aux-esp32-home-assistant/issues) if you have a question. I spent a lot of time getting this working and am happy to help where I can. Include your model and ESPHome version, and remove passwords and API keys before sharing configuration or logs.
+
+## OTA-kompatibilitás
+
+Az üres OTA `encryption:` blokk szándékos: az API titkosítási kulcsát használja. A titkosított OTA ESPHome 2026.9.0-tól érhető el. Régebbi, már telepített firmware frissítésénél kövesd a [hivatalos átállási útmutatót](https://esphome.io/components/ota/esphome/#enabling-encryption-on-an-existing-device).
+
+## Kérdések, segítség
+
+Ha kérdésed van, nyiss egy [Issue-t](https://github.com/hajcsaka/aux-esp32-home-assistant/issues). Sok időmbe telt, mire összeállt a működő megoldás; szívesen segítek, amiben tudok. Írd meg a klíma pontos típusát és az ESPHome-verziót, de jelszót vagy API-kulcsot ne ossz meg.
