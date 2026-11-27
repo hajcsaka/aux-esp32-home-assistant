@@ -1,29 +1,40 @@
-# RECONSTRUCTED EXAMPLE — NOT A VERIFIED DEPLOYED CONFIGURATION
-# Validate with your ESPHome version and hardware before flashing.
-# Upstream master is mutable; record a tested revision for reproducible builds.
+# Based on the owner's working bedroom configuration.
+# Setup reported working on three AUX Console Pro AMCO-H12/4R3DA-2 units.
+# Credentials replaced with !secret references; validate for your ESPHome version.
+# OTA encryption uses the API key; see README for version/migration notes.
 esphome:
-  name: aux-ac-kitchen
-  friendly_name: AUX AC Kitchen
+  name: aux-vezerlo-haloszoba
+  friendly_name: Aux vezérlő Hálószoba
+
 esp32:
   variant: esp32
+
 logger:
   baud_rate: 0
   level: DEBUG
+
 api:
   encryption:
-    key: !secret aux_kitchen_api_key
+    key: !secret aux_api_key
+
 ota:
   - platform: esphome
+    encryption:
+
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  power_save_mode: none
   ap:
-    ssid: "AUX Kitchen Fallback"
+    ssid: "AUX Haloszoba Fallback"
     password: !secret aux_fallback_password
+
 captive_portal:
+
 external_components:
   - source: github://GrKoR/esphome_aux_ac_component@master
     components: [aux_ac]
+
 uart:
   id: aux_uart
   tx_pin: GPIO17
@@ -32,12 +43,13 @@ uart:
   data_bits: 8
   parity: EVEN
   stop_bits: 1
+
 climate:
   - platform: aux_ac
-    name: "AUX Air Conditioner Kitchen"
+    name: "AUX klíma hálószoba"
     uart_id: aux_uart
     period: 7s
-    show_action: true
+    show_action: false
     display_inverted: false
     optimistic: false
     supported_modes:
@@ -46,12 +58,30 @@ climate:
       - HEAT
       - DRY
       - FAN_ONLY
+
+debug:
+  update_interval: 60s
+
 sensor:
+  - platform: debug
+    free:
+      name: "Szabad memoria"
+    block:
+      name: "Legnagyobb szabad memoriablokk"
+    loop_time:
+      name: "Fo ciklus futasideje"
   - platform: wifi_signal
-    name: "WiFi Signal Strength"
+    name: "WiFi jelerősség"
     update_interval: 60s
   - platform: uptime
-    name: "Uptime"
+    name: "Üzemidő"
+    update_interval: 60s
+
 binary_sensor:
   - platform: status
-    name: "Connection Status"
+    name: "Kapcsolat"
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "Ujrainditas oka"
